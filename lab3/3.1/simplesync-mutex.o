@@ -1,0 +1,260 @@
+	.file	"simplesync.c"
+	.text
+	.section	.rodata.str1.8,"aMS",@progbits,1
+	.align 8
+.LC0:
+	.string	"About to increase variable %d times\n"
+	.section	.rodata.str1.1,"aMS",@progbits,1
+.LC1:
+	.string	"Done increasing variable.\n"
+	.text
+	.p2align 4
+	.globl	increase_fn
+	.type	increase_fn, @function
+increase_fn:
+.LFB51:
+	.cfi_startproc
+	endbr64
+	pushq	%r12
+	.cfi_def_cfa_offset 16
+	.cfi_offset 12, -16
+	movl	$10000000, %ecx
+	leaq	.LC0(%rip), %rdx
+	xorl	%eax, %eax
+	pushq	%rbp
+	.cfi_def_cfa_offset 24
+	.cfi_offset 6, -24
+	movq	%rdi, %rbp
+	movq	stderr(%rip), %rdi
+	movl	$1, %esi
+	pushq	%rbx
+	.cfi_def_cfa_offset 32
+	.cfi_offset 3, -32
+	leaq	mutex1(%rip), %r12
+	movl	$10000000, %ebx
+	call	__fprintf_chk@PLT
+	.p2align 4,,10
+	.p2align 3
+.L2:
+	movq	%r12, %rdi
+	call	pthread_mutex_lock@PLT
+	movl	0(%rbp), %eax
+	movq	%r12, %rdi
+	addl	$1, %eax
+	movl	%eax, 0(%rbp)
+	call	pthread_mutex_unlock@PLT
+	subl	$1, %ebx
+	jne	.L2
+	movq	stderr(%rip), %rcx
+	movl	$26, %edx
+	movl	$1, %esi
+	leaq	.LC1(%rip), %rdi
+	call	fwrite@PLT
+	popq	%rbx
+	.cfi_def_cfa_offset 24
+	xorl	%eax, %eax
+	popq	%rbp
+	.cfi_def_cfa_offset 16
+	popq	%r12
+	.cfi_def_cfa_offset 8
+	ret
+	.cfi_endproc
+.LFE51:
+	.size	increase_fn, .-increase_fn
+	.section	.rodata.str1.8
+	.align 8
+.LC2:
+	.string	"About to decrease variable %d times\n"
+	.section	.rodata.str1.1
+.LC3:
+	.string	"Done decreasing variable.\n"
+	.text
+	.p2align 4
+	.globl	decrease_fn
+	.type	decrease_fn, @function
+decrease_fn:
+.LFB52:
+	.cfi_startproc
+	endbr64
+	pushq	%r12
+	.cfi_def_cfa_offset 16
+	.cfi_offset 12, -16
+	movl	$10000000, %ecx
+	leaq	.LC2(%rip), %rdx
+	xorl	%eax, %eax
+	pushq	%rbp
+	.cfi_def_cfa_offset 24
+	.cfi_offset 6, -24
+	movq	%rdi, %rbp
+	movq	stderr(%rip), %rdi
+	movl	$1, %esi
+	pushq	%rbx
+	.cfi_def_cfa_offset 32
+	.cfi_offset 3, -32
+	leaq	mutex1(%rip), %r12
+	movl	$10000000, %ebx
+	call	__fprintf_chk@PLT
+	.p2align 4,,10
+	.p2align 3
+.L7:
+	movq	%r12, %rdi
+	call	pthread_mutex_lock@PLT
+	movl	0(%rbp), %eax
+	movq	%r12, %rdi
+	subl	$1, %eax
+	movl	%eax, 0(%rbp)
+	call	pthread_mutex_unlock@PLT
+	subl	$1, %ebx
+	jne	.L7
+	movq	stderr(%rip), %rcx
+	movl	$26, %edx
+	movl	$1, %esi
+	leaq	.LC3(%rip), %rdi
+	call	fwrite@PLT
+	popq	%rbx
+	.cfi_def_cfa_offset 24
+	xorl	%eax, %eax
+	popq	%rbp
+	.cfi_def_cfa_offset 16
+	popq	%r12
+	.cfi_def_cfa_offset 8
+	ret
+	.cfi_endproc
+.LFE52:
+	.size	decrease_fn, .-decrease_fn
+	.section	.rodata.str1.1
+.LC4:
+	.string	""
+.LC5:
+	.string	"NOT "
+.LC6:
+	.string	"pthread_create"
+.LC7:
+	.string	"pthread_join"
+.LC8:
+	.string	"%sOK, val = %d.\n"
+	.section	.text.startup,"ax",@progbits
+	.p2align 4
+	.globl	main
+	.type	main, @function
+main:
+.LFB53:
+	.cfi_startproc
+	endbr64
+	pushq	%r12
+	.cfi_def_cfa_offset 16
+	.cfi_offset 12, -16
+	xorl	%esi, %esi
+	leaq	increase_fn(%rip), %rdx
+	pushq	%rbx
+	.cfi_def_cfa_offset 24
+	.cfi_offset 3, -24
+	subq	$40, %rsp
+	.cfi_def_cfa_offset 64
+	movq	%fs:40, %rax
+	movq	%rax, 24(%rsp)
+	xorl	%eax, %eax
+	leaq	4(%rsp), %r12
+	leaq	8(%rsp), %rdi
+	movl	$0, 4(%rsp)
+	movq	%r12, %rcx
+	call	pthread_create@PLT
+	testl	%eax, %eax
+	jne	.L26
+	leaq	16(%rsp), %rdi
+	movq	%r12, %rcx
+	leaq	decrease_fn(%rip), %rdx
+	xorl	%esi, %esi
+	call	pthread_create@PLT
+	movl	%eax, %ebx
+	testl	%eax, %eax
+	jne	.L25
+	movq	8(%rsp), %rdi
+	xorl	%esi, %esi
+	call	pthread_join@PLT
+	movl	%eax, %ebx
+	testl	%eax, %eax
+	jne	.L27
+.L13:
+	movq	16(%rsp), %rdi
+	xorl	%esi, %esi
+	call	pthread_join@PLT
+	movl	%eax, %ebx
+	testl	%eax, %eax
+	jne	.L28
+.L14:
+	movl	4(%rsp), %ecx
+	xorl	%r12d, %r12d
+	leaq	.LC5(%rip), %rax
+	leaq	.LC4(%rip), %rdx
+	leaq	.LC8(%rip), %rsi
+	movl	$1, %edi
+	testl	%ecx, %ecx
+	cmovne	%rax, %rdx
+	sete	%r12b
+	xorl	%eax, %eax
+	call	__printf_chk@PLT
+	movq	24(%rsp), %rax
+	xorq	%fs:40, %rax
+	jne	.L29
+	addq	$40, %rsp
+	.cfi_remember_state
+	.cfi_def_cfa_offset 24
+	movl	%r12d, %eax
+	popq	%rbx
+	.cfi_def_cfa_offset 16
+	popq	%r12
+	.cfi_def_cfa_offset 8
+	ret
+.L27:
+	.cfi_restore_state
+	call	__errno_location@PLT
+	leaq	.LC7(%rip), %rdi
+	movl	%ebx, (%rax)
+	call	perror@PLT
+	jmp	.L13
+.L28:
+	call	__errno_location@PLT
+	leaq	.LC7(%rip), %rdi
+	movl	%ebx, (%rax)
+	call	perror@PLT
+	jmp	.L14
+.L26:
+	movl	%eax, %ebx
+.L25:
+	call	__errno_location@PLT
+	leaq	.LC6(%rip), %rdi
+	movl	%ebx, (%rax)
+	call	perror@PLT
+	movl	$1, %edi
+	call	exit@PLT
+.L29:
+	call	__stack_chk_fail@PLT
+	.cfi_endproc
+.LFE53:
+	.size	main, .-main
+	.globl	mutex1
+	.bss
+	.align 32
+	.type	mutex1, @object
+	.size	mutex1, 40
+mutex1:
+	.zero	40
+	.ident	"GCC: (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0"
+	.section	.note.GNU-stack,"",@progbits
+	.section	.note.gnu.property,"a"
+	.align 8
+	.long	 1f - 0f
+	.long	 4f - 1f
+	.long	 5
+0:
+	.string	 "GNU"
+1:
+	.align 8
+	.long	 0xc0000002
+	.long	 3f - 2f
+2:
+	.long	 0x3
+3:
+	.align 8
+4:
